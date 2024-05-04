@@ -1,59 +1,57 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using UE.STOREDB.DOMAIN.Core.Entities;
 using UE.STOREDB.DOMAIN.Core.Interfaces;
-using UE.STOREDB.DOMAIN.Infrastructure.Repositories;
 
 namespace UE.STOREDB.API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class FavoriteController : Controller
     {
-        private readonly ICategoryRepository _repo;
+        private readonly IFavoriteRepository _repo;
 
-        public CategoryController(ICategoryRepository repo)
+        public FavoriteController(IFavoriteRepository repo)
             => _repo = repo;
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var category = await _repo.GetAll();
+            var favorite = await _repo.GetAll();
 
-            return Ok(category);
+            return Ok(favorite);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById (int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var category = await _repo.GetById(id);
+            var favorite = await _repo.GetById(id);
 
-            if (category == null)
+            if (favorite == null)
                 return NotFound();
 
-            return Ok(category);
+            return Ok(favorite);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]Category category)
+        public async Task<IActionResult> Create([FromBody] Favorite favorite)
         {
-            var result = await _repo.Insert(category);
+            var result = await _repo.Insert(favorite);
 
-            if(!result)
+            if (!result)
                 return BadRequest();
 
             return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody]Category category)
+        public async Task<IActionResult> Update(int id, [FromBody] Favorite favorite)
         {
-            if (id != category.Id) 
+            if (id != favorite.Id)
                 return BadRequest();
 
-            var result = await _repo.Update(category);
+            var result = await _repo.Update(favorite);
 
-            if (!result) 
+            if (!result)
                 return BadRequest();
 
             return Ok(result);

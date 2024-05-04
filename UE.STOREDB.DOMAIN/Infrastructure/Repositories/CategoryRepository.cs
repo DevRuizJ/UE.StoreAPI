@@ -54,7 +54,11 @@ namespace UE.STOREDB.DOMAIN.Infrastructure.Repositories
 
         public async Task<bool> Update(Category category)
         {
-            if (GetById(category.Id) == null)
+            var findCategory = await _dbContext.Category
+               .Where(c => c.IsActive == true && c.Id == category.Id)
+               .FirstOrDefaultAsync();
+
+            if (findCategory == null)
                 return false;
 
             _dbContext.Category.Update(category);
