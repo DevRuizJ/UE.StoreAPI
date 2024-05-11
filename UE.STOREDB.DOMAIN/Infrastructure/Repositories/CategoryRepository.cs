@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,6 @@ namespace UE.STOREDB.DOMAIN.Infrastructure.Repositories
         {
             _dbContext = dbContext;
         }
-
         ////Sincrono
         //public IEnumerable<Category> GetAll()
         //{
@@ -33,6 +33,7 @@ namespace UE.STOREDB.DOMAIN.Infrastructure.Repositories
             return await _dbContext
                     .Category
                     .Where(c => c.IsActive == true)
+                    .Include(p => p.Product)
                     .ToListAsync();
         }
 
@@ -48,39 +49,42 @@ namespace UE.STOREDB.DOMAIN.Infrastructure.Repositories
         {
             await _dbContext.Category.AddAsync(category);
             int rows = await _dbContext.SaveChangesAsync();
-
             return rows > 0;
         }
 
         public async Task<bool> Update(Category category)
         {
-            var findCategory = await _dbContext.Category
-               .Where(c => c.IsActive == true && c.Id == category.Id)
-               .FirstOrDefaultAsync();
-
-            if (findCategory == null)
-                return false;
-
             _dbContext.Category.Update(category);
             int rows = await _dbContext.SaveChangesAsync();
-
             return rows > 0;
         }
 
         public async Task<bool> Delete(int id)
         {
-            var findCategory = await _dbContext.Category
-                .Where(c => c.IsActive == true && c.Id == id)
+            var findCategory = await _dbContext
+                .Category
+                .Where(x => x.IsActive == true && x.Id == id)
                 .FirstOrDefaultAsync();
 
-            if (findCategory == null)
-                return false;
+            if (findCategory == null) return false;
 
             _dbContext.Category.Remove(findCategory);
-
             int rows = await _dbContext.SaveChangesAsync();
-
             return rows > 0;
         }
+        public async Task<bool> DeleteLogic(int id)
+        {
+            var findCategory = await _dbContext
+                   .Category
+                   .Where(x => x.IsActive == true && x.Id == id)
+                   .FirstOrDefaultAsync();
+
+            if (findCategory == null) return false;
+
+            findCategory.IsActive = false;
+            int rows = await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
     }
 }
